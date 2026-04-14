@@ -40,6 +40,18 @@ The `(git)` and `(session)` suffixes disambiguate the two sets of `+/-` numbers 
 
 ## Installation
 
+### Ask Claude Code to install it
+
+Open Claude Code in your terminal and paste:
+
+```
+Read the statusline docs at https://code.claude.com/docs/en/statusline then clone https://github.com/Dzhuneyt/cc-statusline.git to ~/cc-statusline and configure it as my statusline in ~/.claude/settings.json
+```
+
+Claude Code will clone the repo, make the script executable, and update your settings. The statusline should appear after your next interaction.
+
+### Manual installation
+
 ```bash
 git clone https://github.com/Dzhuneyt/cc-statusline.git ~/cc-statusline
 chmod +x ~/cc-statusline/statusline.sh
@@ -57,7 +69,7 @@ Add to your Claude Code settings (`~/.claude/settings.json`):
 }
 ```
 
-Restart Claude Code. The statusline should appear below the prompt.
+The statusline should appear after your next interaction with Claude Code.
 
 ## Updating
 
