@@ -1,17 +1,33 @@
 # cc-statusline
 
-A two-line ANSI statusline for [Claude Code](https://docs.anthropic.com/en/docs/claude-code).
+A batteries-included statusline for [Claude Code](https://docs.anthropic.com/en/docs/claude-code) with context usage, rate limits, git status, session cost, and token counts.
 
 <img width="953" height="110" alt="image" src="https://github.com/user-attachments/assets/e1e750c9-8f4d-47bc-b98a-515b1de5ec38" />
 
-
-Shows model, context window, rate limits, cost, git status, and session stats — updated on every render cycle.
-
 ## What it shows
 
-**Line 1:** model name | context usage bar | working directory | worktree | git branch + diff stats | lines changed | cost | duration
+**Line 1:**
 
-**Line 2:** 5-hour rate limit | 7-day rate limit | token counts (in/out)
+| Section | Example | Notes |
+|---|---|---|
+| Model name | `Opus 4.6` | Parenthetical suffix stripped |
+| Context usage | `█░░░░░░░░░ 8%` | 10-wide bar, green/yellow/red |
+| Working directory | `~/projects/my-app` | `~` shorthand for `$HOME` |
+| Worktree | `wt:feature-x` | Only shown if active |
+| Git status | `main +60 -14 (git)` | Branch + staged/unstaged/untracked |
+| Session lines | `+174 -27 (session)` | Cumulative lines changed by Claude |
+| Cost | `$16.38` | Session spend |
+| Duration | `5h39m` | Session uptime |
+
+**Line 2:**
+
+| Section | Example | Notes |
+|---|---|---|
+| 5h rate limit | `5h █░░░ 40%` | With time-till-reset |
+| 7d rate limit | `7d ██░░ 60%` | Only shown above 40% usage |
+| Tokens | `125.0k in/45.0k out` | Input/output token counts |
+
+The `(git)` and `(session)` suffixes disambiguate the two sets of `+/-` numbers at a glance.
 
 ## Requirements
 
@@ -39,6 +55,14 @@ Add to your Claude Code settings (`~/.claude/settings.json`):
 ```
 
 Restart Claude Code. The statusline should appear below the prompt.
+
+## Updating
+
+```bash
+cd ~/cc-statusline && git pull
+```
+
+No restart needed — the script is read fresh on every render cycle.
 
 ## Configuration
 
@@ -87,7 +111,7 @@ Set any of these to a non-empty value (e.g. `1`) to hide that section.
 
 | Variable | Default | Description |
 |---|---|---|
-| `CS_CTX_BAR_WIDTH` | `4` | Context bar width (characters) |
+| `CS_CTX_BAR_WIDTH` | `10` | Context bar width (characters) |
 | `CS_RL_BAR_WIDTH` | `4` | Rate limit bar width (characters) |
 | `CS_CTX_WARN_PCT` | `50` | Context % for yellow warning |
 | `CS_CTX_CRIT_PCT` | `75` | Context % for red critical |
