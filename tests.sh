@@ -188,6 +188,7 @@ assert_contains "shows directory"           "$OUT" "/tmp/test-project"
 assert_contains "shows worktree"            "$OUT" "wt:feature-x"
 assert_contains "shows lines added"         "$OUT" "+150"
 assert_contains "shows lines removed"       "$OUT" "-30"
+assert_contains "shows session suffix"      "$OUT" "(session)"
 assert_contains "shows cost"                "$OUT" '$1.23'
 assert_contains "shows duration"            "$OUT" "1h30m"
 assert_contains "shows 5h rate limit"       "$OUT" "5h"

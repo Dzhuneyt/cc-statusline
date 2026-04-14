@@ -189,7 +189,7 @@ fmt_remaining() {
 DURATION=$(format_duration "$DURATION_MS")
 TOKENS_DISPLAY="$(fmt_tokens "$TOTAL_IN") in/$(fmt_tokens "$TOTAL_OUT") out"
 COST_DISPLAY=$(printf '$%.2f' "$COST" 2>/dev/null || echo '$0.00')
-LINES_DISPLAY="${GREEN}+${LINES_ADDED}${RESET} ${RED}-${LINES_REMOVED}${RESET}"
+LINES_DISPLAY="${GREEN}+${LINES_ADDED}${RESET} ${RED}-${LINES_REMOVED}${RESET} ${DIM}(session)${RESET}"
 
 # ── Git status with cached TTL ───────────────────────────────────────────
 GIT_CACHE="${CS_CACHE_DIR}/claude-statusline-git-$(echo "$CWD" | md5 2>/dev/null || echo "$CWD" | md5sum | cut -d' ' -f1)"
@@ -236,9 +236,9 @@ if [ -z "$CS_HIDE_GIT" ] && git -C "${CWD:-.}" rev-parse --git-dir > /dev/null 2
             fi
 
             if [ -n "$changes" ]; then
-                GIT_STATUS="${GIT_STATUS}${changes}"
+                GIT_STATUS="${GIT_STATUS}${changes} ${DIM}(git)${RESET}"
             else
-                GIT_STATUS="${GIT_STATUS} ${GREEN}clean${RESET}"
+                GIT_STATUS="${GIT_STATUS} ${GREEN}clean${RESET} ${DIM}(git)${RESET}"
             fi
         fi
 
