@@ -2,6 +2,9 @@
 
 A two-line ANSI statusline for [Claude Code](https://docs.anthropic.com/en/docs/claude-code).
 
+<img width="953" height="110" alt="image" src="https://github.com/user-attachments/assets/e1e750c9-8f4d-47bc-b98a-515b1de5ec38" />
+
+
 Shows model, context window, rate limits, cost, git status, and session stats — updated on every render cycle.
 
 ## What it shows
