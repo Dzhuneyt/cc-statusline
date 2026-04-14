@@ -64,7 +64,7 @@
 #     sessions in different repos.
 
 # ── Tuning defaults ─────────────────────────────────────────────────────
-CS_CTX_BAR_WIDTH="${CS_CTX_BAR_WIDTH:-4}"
+CS_CTX_BAR_WIDTH="${CS_CTX_BAR_WIDTH:-10}"
 CS_RL_BAR_WIDTH="${CS_RL_BAR_WIDTH:-4}"
 CS_CTX_WARN_PCT="${CS_CTX_WARN_PCT:-50}"
 CS_CTX_CRIT_PCT="${CS_CTX_CRIT_PCT:-75}"
@@ -116,7 +116,12 @@ SEP="\033[2m | \033[0m"
 # ── Progress bar helper ──────────────────────────────────────────────────
 make_bar() {
     local pct="${1:-0}" width="${2:-10}"
-    local filled=$(( pct * width / 100 ))
+    local filled
+    if [ "$pct" -gt 0 ]; then
+        filled=$(( (pct * width + 99) / 100 ))
+    else
+        filled=0
+    fi
     [ "$filled" -gt "$width" ] && filled=$width
     local empty=$(( width - filled ))
     local bar=""

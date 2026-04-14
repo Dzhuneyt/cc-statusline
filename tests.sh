@@ -121,15 +121,17 @@ echo "Helper functions:"
 _test_helper() {
     # Source the script to get function definitions, suppressing output
     (
-        eval "$(grep -A 100 '^make_bar()' "$SCRIPT" | head -11)"
-        eval "$(grep -A 100 '^format_duration()' "$SCRIPT" | head -12)"
-        eval "$(grep -A 100 '^fmt_tokens()' "$SCRIPT" | head -17)"
+        eval "$(sed -n '/^make_bar()/,/^}/p' "$SCRIPT")"
+        eval "$(sed -n '/^format_duration()/,/^}/p' "$SCRIPT")"
+        eval "$(sed -n '/^fmt_tokens()/,/^}/p' "$SCRIPT")"
 
         # make_bar tests
         printf 'make_bar:%s\n' "$(make_bar 0 10)"
         printf 'make_bar:%s\n' "$(make_bar 100 10)"
         printf 'make_bar:%s\n' "$(make_bar 50 10)"
         printf 'make_bar:%s\n' "$(make_bar 0 4)"
+        printf 'make_bar:%s\n' "$(make_bar 8 10)"
+        printf 'make_bar:%s\n' "$(make_bar 1 10)"
 
         # format_duration tests
         printf 'duration:%s\n' "$(format_duration 0)"
@@ -147,20 +149,22 @@ _test_helper() {
 
 HELPER_OUT=$(_test_helper)
 
-assert_eq "make_bar 0% 10-wide = all empty"     "$(echo "$HELPER_OUT" | sed -n '1s/^make_bar://p')" "░░░░░░░░░░"
-assert_eq "make_bar 100% 10-wide = all filled"   "$(echo "$HELPER_OUT" | sed -n '2s/^make_bar://p')" "██████████"
-assert_eq "make_bar 50% 10-wide = half/half"     "$(echo "$HELPER_OUT" | sed -n '3s/^make_bar://p')" "█████░░░░░"
-assert_eq "make_bar 0% 4-wide = all empty"       "$(echo "$HELPER_OUT" | sed -n '4s/^make_bar://p')" "░░░░"
+assert_eq "make_bar 0% 10-wide = all empty"      "$(echo "$HELPER_OUT" | sed -n '1s/^make_bar://p')" "░░░░░░░░░░"
+assert_eq "make_bar 100% 10-wide = all filled"    "$(echo "$HELPER_OUT" | sed -n '2s/^make_bar://p')" "██████████"
+assert_eq "make_bar 50% 10-wide = half/half"       "$(echo "$HELPER_OUT" | sed -n '3s/^make_bar://p')" "█████░░░░░"
+assert_eq "make_bar 0% 4-wide = all empty"         "$(echo "$HELPER_OUT" | sed -n '4s/^make_bar://p')" "░░░░"
+assert_eq "make_bar 8% 10-wide = 1 filled (ceil)"  "$(echo "$HELPER_OUT" | sed -n '5s/^make_bar://p')" "█░░░░░░░░░"
+assert_eq "make_bar 1% 10-wide = 1 filled (ceil)"  "$(echo "$HELPER_OUT" | sed -n '6s/^make_bar://p')" "█░░░░░░░░░"
 
-assert_eq "format_duration 0ms = 0m"             "$(echo "$HELPER_OUT" | sed -n '5s/^duration://p')" "0m"
-assert_eq "format_duration 3600000ms = 1h0m"     "$(echo "$HELPER_OUT" | sed -n '6s/^duration://p')" "1h0m"
-assert_eq "format_duration 5400000ms = 1h30m"    "$(echo "$HELPER_OUT" | sed -n '7s/^duration://p')" "1h30m"
-assert_eq "format_duration 120000ms = 2m"        "$(echo "$HELPER_OUT" | sed -n '8s/^duration://p')" "2m"
+assert_eq "format_duration 0ms = 0m"             "$(echo "$HELPER_OUT" | sed -n '7s/^duration://p')" "0m"
+assert_eq "format_duration 3600000ms = 1h0m"     "$(echo "$HELPER_OUT" | sed -n '8s/^duration://p')" "1h0m"
+assert_eq "format_duration 5400000ms = 1h30m"    "$(echo "$HELPER_OUT" | sed -n '9s/^duration://p')" "1h30m"
+assert_eq "format_duration 120000ms = 2m"        "$(echo "$HELPER_OUT" | sed -n '10s/^duration://p')" "2m"
 
-assert_eq "fmt_tokens 500 = 500"                 "$(echo "$HELPER_OUT" | sed -n '9s/^tokens://p')"  "500"
-assert_eq "fmt_tokens 1500 = 1.5k"               "$(echo "$HELPER_OUT" | sed -n '10s/^tokens://p')" "1.5k"
-assert_eq "fmt_tokens 1500000 = 1.5M"            "$(echo "$HELPER_OUT" | sed -n '11s/^tokens://p')" "1.5M"
-assert_eq "fmt_tokens 0 = 0"                     "$(echo "$HELPER_OUT" | sed -n '12s/^tokens://p')" "0"
+assert_eq "fmt_tokens 500 = 500"                 "$(echo "$HELPER_OUT" | sed -n '11s/^tokens://p')" "500"
+assert_eq "fmt_tokens 1500 = 1.5k"               "$(echo "$HELPER_OUT" | sed -n '12s/^tokens://p')" "1.5k"
+assert_eq "fmt_tokens 1500000 = 1.5M"            "$(echo "$HELPER_OUT" | sed -n '13s/^tokens://p')" "1.5M"
+assert_eq "fmt_tokens 0 = 0"                     "$(echo "$HELPER_OUT" | sed -n '14s/^tokens://p')" "0"
 
 # ── Test: Output structure ───────────────────────────────────────────────
 
@@ -249,17 +253,17 @@ echo ""
 echo "Tuning variables:"
 
 # Wider context bar
-OUT_WIDE=$(run_statusline "$FULL_JSON" CS_CTX_BAR_WIDTH=8 CS_HIDE_GIT=1)
+OUT_WIDE=$(run_statusline "$FULL_JSON" CS_CTX_BAR_WIDTH=15 CS_HIDE_GIT=1)
 OUT_DEFAULT=$(run_statusline "$FULL_JSON" CS_HIDE_GIT=1)
 WIDE_BAR_LEN=$(echo "$OUT_WIDE" | strip_ansi | head -1 | grep -o '[█░]*' | head -1 | wc -c | tr -d ' ')
 DEFAULT_BAR_LEN=$(echo "$OUT_DEFAULT" | strip_ansi | head -1 | grep -o '[█░]*' | head -1 | wc -c | tr -d ' ')
 TOTAL=$((TOTAL + 1))
 if [ "$WIDE_BAR_LEN" -gt "$DEFAULT_BAR_LEN" ]; then
     PASSED=$((PASSED + 1))
-    printf '  \033[32m✓\033[0m CS_CTX_BAR_WIDTH=8 produces wider bar\n'
+    printf '  \033[32m✓\033[0m CS_CTX_BAR_WIDTH=15 produces wider bar\n'
 else
     FAILED=$((FAILED + 1))
-    printf '  \033[31m✗\033[0m CS_CTX_BAR_WIDTH=8 produces wider bar (wide=%d, default=%d)\n' "$WIDE_BAR_LEN" "$DEFAULT_BAR_LEN"
+    printf '  \033[31m✗\033[0m CS_CTX_BAR_WIDTH=15 produces wider bar (wide=%d, default=%d)\n' "$WIDE_BAR_LEN" "$DEFAULT_BAR_LEN"
 fi
 
 # 7d show threshold — hide 7d when below threshold
